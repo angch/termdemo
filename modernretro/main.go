@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	tm "termdemo/internal/term"
+	tm "github.com/angch/termdemo/internal/term"
 )
 
 const (
@@ -161,8 +161,9 @@ func finalSummary(b *strings.Builder, frames int, elapsed, avg float64) {
 		b.WriteString(tm.MoveTo(3+i, 1))
 		// rainbow gradient the title
 		if i == 6 {
-			for j, r := range line {
-				if j > 3 && j < len(line)-4 {
+			runes := []rune(line)
+			for j, r := range runes {
+				if j > 3 && j < len(runes)-4 {
 					h := math.Mod(float64(j)*5+elapsed*30, 360)
 					rr, gg, bb := tm.HSV(h, 0.7, 1.0)
 					fmt.Fprintf(b, "%s%s%c", tm.Bold, tm.FG(rr, gg, bb), r)
@@ -206,7 +207,7 @@ func (intro) render(b *strings.Builder, st float64, frame int, dt float64) {
 	startY := 4
 	for i, line := range banner {
 		b.WriteString(tm.MoveTo(startY+i, (80-len([]rune(line)))/2+1))
-		for j, r := range line {
+		for j, r := range []rune(line) {
 			h := math.Mod(float64(j+i*2)*6+st*180, 360)
 			rr, gg, bb := tm.HSV(h, 0.8, 1.0)
 			fmt.Fprintf(b, "%s%s%c", tm.Bold, tm.FG(rr, gg, bb), r)
@@ -214,7 +215,7 @@ func (intro) render(b *strings.Builder, st float64, frame int, dt float64) {
 	}
 	b.WriteString(tm.Reset)
 	sub := "— CAPABILITY DEMO · 80×24 · 60 fps target —"
-	b.WriteString(tm.MoveTo(startY+18, (80-len([]rune(sub)))/2+1))
+	b.WriteString(tm.MoveTo(startY+16, (80-len([]rune(sub)))/2+1))
 	alpha := math.Min(1, st)
 	c := int(220 * alpha)
 	fmt.Fprintf(b, "%s%s%s", tm.Italic, tm.FG(c, c, c), sub)

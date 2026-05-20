@@ -59,17 +59,19 @@ func HSV(h, s, v float64) (int, int, int) {
 	default:
 		r, g, b = c, 0, x
 	}
-	return clamp((r + m) * 255), clamp((g + m) * 255), clamp((b + m) * 255)
+	return clamp_u8(r + m), clamp_u8(g + m), clamp_u8(b + m)
 }
 
-func clamp(f float64) int {
-	if f < 0 {
+// clamp_u8 converts f in [0,1] to int in [0,255], clamping out-of-range values.
+func clamp_u8(f float64) int {
+	// can't use min or max, because different types.
+	if f <= 0 {
 		return 0
 	}
-	if f > 255 {
+	if f >= 1 {
 		return 255
 	}
-	return int(f)
+	return int(f * 255)
 }
 
 // Lerp linearly blends a→b by t in [0,1].
@@ -92,7 +94,7 @@ func LeaveFullscreen() {
 	os.Stdout.WriteString(Reset + ShowCursor + MainScreen)
 }
 
-// Pad centers s within width n, padded with spaces.
+// PadCenter centers s within width n, padded with spaces.
 func PadCenter(s string, n int) string {
 	visible := visibleLen(s)
 	if visible >= n {
@@ -109,7 +111,7 @@ func visibleLen(s string) int {
 	inEsc := false
 	for _, r := range s {
 		if inEsc {
-			if r == 'm' || r == 'H' || r == 'K' || r == 'J' {
+			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
 				inEsc = false
 			}
 			continue
